@@ -347,31 +347,36 @@
     </div>
 
     <script>
-        function getSosKey() {
-            const id = document.getElementById('tg_id').value;
-            if(!id) return alert('Введите ID!');
-            document.getElementById('vpn_link').innerText = "vless://somo-sos-" + btoa(id).substring(0,10) + "@somo.io:443?security=reality#SOMO_SOS";
-            document.getElementById('result_box').style.display = 'block';
-        }
+async function getSosKey() {
+    const idInput = document.getElementById('tg_id');
+    const resultBox = document.getElementById('result_box');
+    const vpnLink = document.getElementById('vpn_link');
+    const id = idInput.value.trim();
 
-        function copyKey() {
-            const text = document.getElementById('vpn_link').innerText;
-            navigator.clipboard.writeText(text);
-            alert('Ключ скопирован в буфер обмена!');
-        }
+    if(!id) { alert('Введите ваш Telegram ID!'); return; }
 
-        function toggleAccordion() {
-            const wrapper = document.getElementById('acc_wrapper');
-            const arrow = document.getElementById('acc_arrow');
-            
-            wrapper.classList.toggle('open');
-            
-            if (wrapper.classList.contains('open')) {
-                arrow.style.transform = 'rotate(180deg)';
-            } else {
-                arrow.style.transform = 'rotate(0deg)';
-            }
+    try {
+        // Сайт отправляет запрос на порт 8000 вашего сервера
+        const response = await fetch('http://89.127.205:8000/get-sos-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: id })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Если сервер одобрил ID и выдал ключ
+            vpnLink.innerText = data.key;
+            resultBox.style.display = 'block';
+        } else {
+            // Если сервер вернул ошибку (например, лимит 30 дней)
+            alert(data.detail || 'Ошибка при получении ключа');
         }
+    } catch (error) {
+        alert('Не удалось связаться с сервером бота. Убедитесь, что бот запущен, а порт 8000 открыт.');
+    }
+}
     </script>
 </body>
 </html>
