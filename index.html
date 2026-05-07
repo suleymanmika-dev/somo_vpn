@@ -28,7 +28,19 @@
             min-height: 100vh;
         }
 
-        /* УВЕЛИЧЕННЫЙ БАННЕР С ШАХМАТАМИ */
+        /* АНИМАЦИЯ ВСПЛЫВАНИЯ ДЛЯ БАННЕРА */
+        @keyframes bannerFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-40px); /* Начинаем чуть выше экрана */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* Опускаемся в нормальное положение */
+            }
+        }
+
+        /* УВЕЛИЧЕННЫЙ БАННЕР С ШАХМАТАМИ + АНИМАЦИИ */
         .hero-section {
             width: 100%;
             max-width: 600px;
@@ -38,6 +50,29 @@
             border-bottom-left-radius: 50px;
             border-bottom-right-radius: 50px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            
+            /* Подключаем анимацию всплывания при загрузке страницы */
+            animation: bannerFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Эффект стеклянного блика */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: skewX(-25deg);
+            z-index: 1;
+            animation: shine 4s infinite ease-in-out;
         }
 
         .hero-section::after {
@@ -48,6 +83,25 @@
             width: 100%;
             height: 60%;
             background: linear-gradient(to top, var(--bg) 10%, transparent 100%);
+            z-index: 2;
+        }
+
+        @keyframes shine {
+            0% { left: -150%; }
+            30% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* АНИМАЦИЯ ДЛЯ КАРТОЧКИ (чтобы она плавно поднималась навстречу) */
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .container {
@@ -55,8 +109,12 @@
             max-width: 440px;
             padding: 0 20px 40px;
             box-sizing: border-box;
-            margin-top: -80px; /* Сильнее наползаем на фото для эффекта глубины */
+            margin-top: -80px;
             z-index: 10;
+            
+            /* Карточка тоже плавно всплывает, но снизу */
+            animation: cardFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: 0.1s; /* Небольшая задержка для красивого эффекта */
         }
 
         .card {
@@ -96,7 +154,6 @@
         }
         input:focus { border-color: var(--neon); box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); outline: none; }
 
-        /* ИДЕНТИЧНЫЙ ДИЗАЙН КНОПОК ДЛЯ SOS И БОТА */
         .sos-btn {
             width: 100%;
             padding: 20px;
@@ -141,17 +198,16 @@
             border-radius: 10px;
         }
 
-        /* СТИЛИ ДЛЯ ВЫПАДАЮЩЕГО СПИСКА */
         .faq-section { margin-top: 40px; text-align: left; }
         
-        details {
+        .accordion-item {
             background: rgba(255, 255, 255, 0.02);
             border-radius: 25px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             overflow: hidden;
         }
-        
-        summary {
+
+        .accordion-header {
             padding: 20px;
             cursor: pointer;
             font-weight: 700;
@@ -160,17 +216,38 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            list-style: none;
             text-transform: uppercase;
             letter-spacing: 1px;
+            user-select: none;
         }
-        summary::-webkit-details-marker { display: none; }
-        summary::after { content: '▼'; font-size: 10px; color: var(--neon); transition: 0.3s; }
-        details[open] summary::after { transform: rotate(180deg); }
 
-        .details-content { padding: 0 20px 25px; }
+        .accordion-arrow {
+            font-size: 10px;
+            color: var(--neon);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .accordion-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .accordion-wrapper.open {
+            grid-template-rows: 1fr;
+        }
+
+        .accordion-content {
+            overflow: hidden;
+            padding: 0 20px;
+            transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .accordion-wrapper.open .accordion-content {
+            padding: 0 20px 25px;
+        }
+
         .step { font-size: 13px; line-height: 1.5; margin-bottom: 12px; display: flex; gap: 10px; color: #fff; }
-
         .app-grid { display: grid; gap: 10px; margin-top: 10px; }
         
         .app-card {
@@ -202,8 +279,7 @@
             <input type="text" id="tg_id" placeholder="Твой Telegram ID">
             <button class="sos-btn" onclick="getSosKey()">Получить SOS-ключ</button>
             
-            <!-- КНОПКА ТГ БОТА С ИДЕНТИЧНЫМ КНОПКЕ SOS ДИЗАЙНОМ -->
-            <a href="https://t.me" target="_blank" class="sos-btn">Открыть Telegram-бота</a>
+            <a href="https://t.me/somovpn_bot" target="_blank" class="sos-btn">Открыть Telegram-бота</a>
 
             <div id="result_box">
                 <div style="font-size: 9px; color: var(--neon); font-weight: 900; text-transform: uppercase;">Доступ активен 2 часа:</div>
@@ -211,53 +287,61 @@
                 <button onclick="copyKey()" style="background: var(--neon); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 900; cursor: pointer; width: 100%;">СКОПИРОВАТЬ</button>
             </div>
 
-            <!-- ВЫПАДАЮЩИЙ БЛОК С ИНСТРУКЦИЕЙ И ССЫЛКАМИ -->
+            <!-- ВЫПАДАЮЩИЙ АККОРДЕОН -->
             <div class="faq-section">
-                <details>
-                    <summary>Инструкция и приложения</summary>
-                    <div class="details-content">
-                        
-                        <!-- ТЕКСТ ИНСТРУКЦИИ -->
-                        <div style="margin-top: 15px;">
-                            <div class="step"><span>1️⃣</span> <span>Скопируйте ключ выше.</span></div>
-                            <div class="step"><span>2️⃣</span> <span>Откройте одно из приложений ниже.</span></div>
-                            <div class="step"><span>3️⃣</span> <span>Нажмите «Добавить» (иконка + или импорт).</span></div>
-                            <div class="step"><span>4️⃣</span> <span>Нажмите «Подключить».</span></div>
-                        </div>
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion()">
+                        <span>Инструкция и приложения</span>
+                        <span class="accordion-arrow" id="acc_arrow">▼</span>
+                    </div>
+                    
+                    <div class="accordion-wrapper" id="acc_wrapper">
+                        <div class="accordion-content">
+                            
+                            <div style="margin-top: 15px;">
+                                <div class="step"><span>1️⃣</span> <span>Скопируйте ключ выше.</span></div>
+                                <div class="step"><span>2️⃣</span> <span>Откройте одно из приложений ниже.</span></div>
+                                <div class="step"><span>3️⃣</span> <span>Нажмите «Добавить» (иконка + или импорт).</span></div>
+                                <div class="step"><span>4️⃣</span> <span>Нажмите «Подключить».</span></div>
+                            </div>
 
-                        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 20px 0;">
+                            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 20px 0;">
 
-                        <!-- ССЫЛКИ НА ПРИЛОЖЕНИЯ -->
-                        <div style="font-size: 11px; color: var(--neon); margin: 15px 0 10px; font-weight: 800;">iOS (iPhone / iPad) 🍏</div>
-                        <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 8px;">РФ регион:</div>
-                        <div class="app-grid">
-                            <a href="https://apps.apple.com/ru/app/%D0%B1%D0%B0%D1%82%D1%8F-vpn/id6753714734?see-all=reviews&platform=mac" class="app-card">Батя VPN <span>App Store РФ</span></a>
-                            <a href="https://apps.apple.com/us/app/hitwave/id6755142095" class="app-card">HITWAVE <span>App Store</span></a>
-                        </div>
+                            <div style="font-size: 14px; font-weight: 800; margin-bottom: 15px;">ПРИЛОЖЕНИЯ 📱</div>
 
-                        <div style="font-size: 10px; color: var(--text-dim); margin: 15px 0 8px;">Для тех кто сменил регион:</div>
-                        <div class="app-grid">
+                            <div style="font-size: 11px; color: var(--neon); margin: 15px 0 10px; font-weight: 800;">IOS (IPHONE) 🍏</div>
+                            
+                            <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 8px;">РФ регион:</div>
+                            <div class="app-grid">
+                                 <a href="https://apps.apple.com/ru/app/%D0%B1%D0%B0%D1%82%D1%8F-vpn/id6753714734?see-all=reviews&platform=mac" class="app-card">Батя VPN <span>App Store РФ</span></a>
+                                 <a href="https://apps.apple.com/us/app/hitwave/id6755142095" class="app-card">HITWAVE <span>App Store</span></a>
+                            </div>
+
+                            <div style="font-size: 10px; color: var(--text-dim); margin: 20px 0 8px;">ДЛЯ ТЕХ КТО СМЕНИЛ РЕГИОН:</div>
+                            <div class="app-grid">
                             <a href="https://apps.apple.com/ru/app/%D0%B1%D0%B0%D1%82%D1%8F-vpn/id6753714734?see-all=reviews&platform=mac" class="app-card">Батя VPN <span>App Store РФ</span></a>
                             <a href="https://apps.apple.com/us/app/hitwave/id6755142095" class="app-card">HITWAVE <span>USA</span></a>
                             <a href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215" class="app-card">HAPP PLUS <span>USA</span></a>
                             <a href="https://apps.apple.com/ru/app/v2ray-client/id6747379524" class="app-card">V2RAY <span>Global</span></a>
-                            <a href="https://apps.apple.com/us/app/v2raytun/id6476628951" class="app-card">V2RAYTUN <span>Global</span></a>
-                        </div>
+                            <a href="https://apps.apple.com/us/app/v2raytun/id6476628951" class="app-card">V2RAYTUN <span>Global</span></a>                            </div>
 
-                        <div style="font-size: 11px; color: #10b981; margin: 25px 0 10px; font-weight: 800;">Android 🤖</div>
-                        <div class="app-grid">
+                            <div style="font-size: 11px; color: #10b981; margin: 25px 0 10px; font-weight: 800;">ANDROID 🤖</div>
+                            <div class="app-grid">
                             <a href="https://play.google.com/store/apps/details?id=ms.f2p.batyavpn&hl=ru" class="app-card">Батя VPN <span>Play Market</span></a>
                             <a href="https://play.google.com/store/apps/details?id=com.happproxy&hl=rum" class="app-card">HAPP PLUS <span>Play Market</span></a>
                             <a href="https://play.google.com/store/apps/details?id=com.v2ray.client&hl=ru" class="app-card">V2RAY <span>Play Market</span></a>
                             <a href="https://play.google.com/store/apps/details?id=com.v2raytun.android&hl=ru" class="app-card">V2RAYTUN <span>Play Market</span></a>
-                        </div>
+                            </div>
 
-                        <div style="margin-top: 25px; font-size: 11px; color: var(--text-dim); text-align: center; font-weight: 500;">
-                            🔑 КЛЮЧИ МОГУТ РАБОТАТЬ В УЖЕ ИСПОЛЬЗУЕМЫМИ ВАМИ ПРИЛОЖЕНИЯХ ❤️
-                        </div>
+                            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 25px 0;">
 
+                            <div style="font-size: 11px; color: var(--text-dim); text-align: center; font-weight: 500; line-height: 1.4;">
+                                🔑 КЛЮЧИ МОГУТ РАБОТАТЬ В УЖЕ ИСПОЛЬЗУЕМЫМИ ВАМИ ПРИЛОЖЕНИЯХ ❤️
+                            </div>
+
+                        </div>
                     </div>
-                </details>
+                </div>
             </div>
         </div>
     </div>
@@ -274,6 +358,19 @@
             const text = document.getElementById('vpn_link').innerText;
             navigator.clipboard.writeText(text);
             alert('Ключ скопирован в буфер обмена!');
+        }
+
+        function toggleAccordion() {
+            const wrapper = document.getElementById('acc_wrapper');
+            const arrow = document.getElementById('acc_arrow');
+            
+            wrapper.classList.toggle('open');
+            
+            if (wrapper.classList.contains('open')) {
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                arrow.style.transform = 'rotate(0deg)';
+            }
         }
     </script>
 </body>
