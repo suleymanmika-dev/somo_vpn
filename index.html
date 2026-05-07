@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOMO VPN — SOS Access</title>
+    <style>
+        :root {
+            --bg: #050811;
+            --card: rgba(22, 27, 42, 0.9);
+            --blue: #2563eb;
+            --neon: #3b82f6;
+            --text: #ffffff;
+            --text-dim: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* УВЕЛИЧЕННЫЙ БАННЕР С ШАХМАТАМИ */
+        .hero-section {
+            width: 100%;
+            max-width: 600px;
+            height: 450px;
+            background: url('banner.jpg') center/cover no-repeat;
+            position: relative;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, var(--bg) 10%, transparent 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            padding: 0 20px 40px;
+            box-sizing: border-box;
+            margin-top: -80px; /* Сильнее наползаем на фото для эффекта глубины */
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px;
+            border-radius: 45px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        h1 { font-size: 34px; margin: 0; font-weight: 900; letter-spacing: -1.5px; }
+        h1 span { color: var(--neon); text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+
+        .tagline { 
+            color: var(--text-dim); 
+            font-size: 11px; 
+            font-weight: 800; 
+            letter-spacing: 3px; 
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 20px;
+            background: #050811;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 22px;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            margin-top: 30px;
+            box-sizing: border-box;
+            transition: 0.3s ease;
+        }
+        input:focus { border-color: var(--neon); box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); outline: none; }
+
+        /* ИДЕНТИЧНЫЙ ДИЗАЙН КНОПОК ДЛЯ SOS И БОТА */
+        .sos-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            border: none;
+            border-radius: 22px;
+            color: white;
+            font-weight: 800;
+            font-size: 16px;
+            margin-top: 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+            transition: 0.3s;
+            box-sizing: border-box;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+        }
+        .sos-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(37, 99, 235, 0.6); }
+
+        #result_box {
+            display: none;
+            margin-top: 25px;
+            background: rgba(5, 8, 17, 0.8);
+            padding: 20px;
+            border-radius: 22px;
+            border: 1px solid var(--neon);
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .key-text {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            word-break: break-all;
+            color: #cbd5e1;
+            margin: 15px 0;
+            background: #000;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        /* СТИЛИ ДЛЯ ВЫПАДАЮЩЕГО СПИСКА */
+        .faq-section { margin-top: 40px; text-align: left; }
+        
+        details {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+        
+        summary {
+            padding: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: '▼'; font-size: 10px; color: var(--neon); transition: 0.3s; }
+        details[open] summary::after { transform: rotate(180deg); }
+
+        .details-content { padding: 0 20px 25px; }
+        .step { font-size: 13px; line-height: 1.5; margin-bottom: 12px; display: flex; gap: 10px; color: #fff; }
+
+        .app-grid { display: grid; gap: 10px; margin-top: 10px; }
+        
+        .app-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: #f1f5f9;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .app-card:hover { border-color: var(--neon); background: rgba(59, 130, 246, 0.05); }
+        .app-card span { font-size: 10px; opacity: 0.5; font-weight: 800; }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section"></div>
+
+    <div class="container">
+        <div class="card">
+            <h1>SOMO <span>VPN</span></h1>
+            <div class="tagline">Premium Proxy Service</div>
+
+            <input type="text" id="tg_id" placeholder="Твой Telegram ID">
+            <button class="sos-btn" onclick="getSosKey()">Получить SOS-ключ</button>
+            
+            <!-- КНОПКА ТГ БОТА С ИДЕНТИЧНЫМ КНОПКЕ SOS ДИЗАЙНОМ -->
+            <a href="https://t.me" target="_blank" class="sos-btn">Открыть Telegram-бота</a>
+
+            <div id="result_box">
+                <div style="font-size: 9px; color: var(--neon); font-weight: 900; text-transform: uppercase;">Доступ активен 2 часа:</div>
+                <div id="vpn_link" class="key-text"></div>
+                <button onclick="copyKey()" style="background: var(--neon); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 900; cursor: pointer; width: 100%;">СКОПИРОВАТЬ</button>
+            </div>
+
+            <!-- ВЫПАДАЮЩИЙ БЛОК С ИНСТРУКЦИЕЙ И ССЫЛКАМИ -->
+            <div class="faq-section">
+                <details>
+                    <summary>Инструкция и приложения</summary>
+                    <div class="details-content">
+                        
+                        <!-- ТЕКСТ ИНСТРУКЦИИ -->
+                        <div style="margin-top: 15px;">
+                            <div class="step"><span>1️⃣</span> <span>Скопируйте ключ выше.</span></div>
+                            <div class="step"><span>2️⃣</span> <span>Откройте одно из приложений ниже.</span></div>
+                            <div class="step"><span>3️⃣</span> <span>Нажмите «Добавить» (иконка + или импорт).</span></div>
+                            <div class="step"><span>4️⃣</span> <span>Нажмите «Подключить».</span></div>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 20px 0;">
+
+                        <!-- ССЫЛКИ НА ПРИЛОЖЕНИЯ -->
+                        <div style="font-size: 11px; color: var(--neon); margin: 15px 0 10px; font-weight: 800;">iOS (iPhone / iPad) 🍏</div>
+                        <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 8px;">РФ регион:</div>
+                        <div class="app-grid">
+                            <a href="https://apple.com" class="app-card">Батя VPN <span>App Store РФ</span></a>
+                            <a href="https://apple.com" class="app-card">HITWAVE <span>App Store</span></a>
+                        </div>
+
+                        <div style="font-size: 10px; color: var(--text-dim); margin: 15px 0 8px;">Для тех кто сменил регион:</div>
+                        <div class="app-grid">
+                            <a href="https://apple.com" class="app-card">Батя VPN <span>App Store РФ</span></a>
+                            <a href="https://apple.com" class="app-card">HITWAVE <span>USA</span></a>
+                            <a href="https://apple.com" class="app-card">HAPP PLUS <span>USA</span></a>
+                            <a href="https://apple.com" class="app-card">AMNEZIA VPN <span>USA</span></a>
+                            <a href="https://apple.com" class="app-card">V2RAY <span>Global</span></a>
+                            <a href="https://apple.com" class="app-card">V2RAYTUN <span>Global</span></a>
+                        </div>
+
+                        <div style="font-size: 11px; color: #10b981; margin: 25px 0 10px; font-weight: 800;">Android 🤖</div>
+                        <div class="app-grid">
+                            <a href="https://google.com" class="app-card">Батя VPN <span>Play Market</span></a>
+                            <a href="https://google.com" class="app-card">HAPP PLUS <span>Play Market</span></a>
+                            <a href="https://google.com" class="app-card">AMNEZIA VPN <span>Play Market</span></a>
+                            <a href="https://google.com" class="app-card">V2RAY <span>Play Market</span></a>
+                            <a href="https://google.com" class="app-card">V2RAYTUN <span>Play Market</span></a>
+                        </div>
+
+                        <div style="margin-top: 25px; font-size: 11px; color: var(--text-dim); text-align: center; font-weight: 500;">
+                            🔑 КЛЮЧИ МОГУТ РАБОТАТЬ В УЖЕ ИСПОЛЬЗУЕМЫМИ ВАМИ ПРИЛОЖЕНИЯХ ❤️
+                        </div>
+
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getSosKey() {
+            const id = document.getElementById('tg_id').value;
+            if(!id) return alert('Введите ID!');
+            document.getElementById('vpn_link').innerText = "vless://somo-sos-" + btoa(id).substring(0,10) + "@somo.io:443?security=reality#SOMO_SOS";
+            document.getElementById('result_box').style.display = 'block';
+        }
+
+        function copyKey() {
+            const text = document.getElementById('vpn_link').innerText;
+            navigator.clipboard.writeText(text);
+            alert('Ключ скопирован в буфер обмена!');
+        }
+    </script>
+</body>
+</html>
