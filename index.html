@@ -347,31 +347,48 @@
     </div>
 
     <script>
-        function getSosKey() {
-            const id = document.getElementById('tg_id').value;
-            if(!id) return alert('Введите ID!');
-            document.getElementById('vpn_link').innerText = "vless://somo-sos-" + btoa(id).substring(0,10) + "@somo.io:443?security=reality#SOMO_SOS";
-            document.getElementById('result_box').style.display = 'block';
-        }
+async function getSosKey() {
+    const tgId = document.getElementById('tg_id').value;
+    const resultBox = document.getElementById('result_box');
+    const btn = document.querySelector('.sos-btn');
+    
+    if (!tgId) {
+        alert("Пожалуйста, введите ваш Telegram ID или Ник");
+        return;
+    }
 
-        function copyKey() {
-            const text = document.getElementById('vpn_link').innerText;
-            navigator.clipboard.writeText(text);
-            alert('Ключ скопирован в буфер обмена!');
-        }
+    btn.disabled = true;
+    btn.innerText = "Генерирую...";
 
-        function toggleAccordion() {
-            const wrapper = document.getElementById('acc_wrapper');
-            const arrow = document.getElementById('acc_arrow');
-            
-            wrapper.classList.toggle('open');
-            
-            if (wrapper.classList.contains('open')) {
-                arrow.style.transform = 'rotate(180deg)';
-            } else {
-                arrow.style.transform = 'rotate(0deg)';
-            }
+    try {
+        // Используем твой IP и порт 8080
+        const response = await fetch('http://89.127.205:8080/get_sos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nick: tgId })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.key) {
+            // Выводим ключ в твой блок result_box
+            resultBox.style.display = "block";
+            resultBox.innerHTML = `
+                <div style="font-size: 9px; color: var(--neon); font-weight: 900; text-transform: uppercase;">Доступ активен 2 часа:</div>
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-top: 5px; word-break: break-all; font-family: monospace; font-size: 12px; color: #fff;">
+                    ${data.key}
+                </div>
+                <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">Скопируйте и вставьте в приложение</div>
+            `;
+        } else {
+            alert("Ошибка: " + (data.error || "Сервер недоступен"));
         }
-    </script>
-</body>
-</html>
+    } catch (err) {
+        alert("Ошибка сети! Если вы на HTTPS, браузер может блокировать запрос к HTTP серверу.");
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Получить SOS-ключ";
+    }
+}
+</script>
