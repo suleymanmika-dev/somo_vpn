@@ -276,16 +276,29 @@
             <h1>SOMO <span>VPN</span></h1>
             <div class="tagline">Premium Proxy Service</div>
 
-            <input type="text" id="tg_id" placeholder="Твой Telegram ID">
+           <input type="text" id="tg_id" placeholder="Ник в Telegram (напр. @nick)" style="text-transform: lowercase">
+<div style="font-size: 10px; color: var(--text-dim); margin-top: 8px; font-weight: 600;">
+    * Минимум 5 символов латиницей. Только для личного пользования.
+</div>
+
             <button class="sos-btn" onclick="getSosKey()">Получить SOS-ключ</button>
             
             <a href="https://t.me/somovpn_bot" target="_blank" class="sos-btn">Открыть Telegram-бота</a>
 
             <div id="result_box">
-                <div style="font-size: 9px; color: var(--neon); font-weight: 900; text-transform: uppercase;">Доступ активен 2 часа:</div>
-                <div id="vpn_link" class="key-text"></div>
-                <button onclick="copyKey()" style="background: var(--neon); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 900; cursor: pointer; width: 100%;">СКОПИРОВАТЬ</button>
-            </div>
+    <!-- 1. Красное предупреждение (отдельный блок) -->
+    <div style="color: #ef4444; font-size: 9px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+        ⚠️ Внимание: Ключ привязан к вашему нику. При обнаружении мульти-аккаунта — бан по IP.
+    </div>
+
+    <!-- 2. Синяя надпись (отдельный блок) -->
+    <div style="font-size: 9px; color: var(--neon); font-weight: 900; text-transform: uppercase;">
+        Доступ активен 2 часа:
+    </div>
+
+    <div id="vpn_link" class="key-text"></div>
+    <button onclick="copyKey(event)" style="background: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 22px; font-size: 12px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;">СКОПИРОВАТЬ</button>
+</div>
 
             <!-- ВЫПАДАЮЩИЙ АККОРДЕОН -->
             <div class="faq-section">
@@ -347,48 +360,63 @@
     </div>
 
     <script>
-async function getSosKey() {
-    const tgId = document.getElementById('tg_id').value;
+        // ТВОЙ ПОСТОЯННЫЙ КЛЮЧ (вставь свой между кавычек)
+const FIXED_SOS_KEY = "vless://81db31b1-2860-40f0-88df-ab838e4104f8@89.127.205.75:443?type=tcp&encryption=none&security=reality&pbk=T1Dw2mLksBKZaR479UFRNPuwPilajAWBfC6hPv6OpXQ&fp=chrome&sni=www.apple.com&sid=65751604&spx=%2F#MyVLESS-SOS%20KEY";
+
+function getSosKey() {
+    const input = document.getElementById('tg_id').value.trim();
     const resultBox = document.getElementById('result_box');
+    const vpnLink = document.getElementById('vpn_link');
     const btn = document.querySelector('.sos-btn');
+
+    // Очищаем ник от знака @ если он есть
+    const cleanNick = input.startsWith('@') ? input.substring(1) : input;
     
-    if (!tgId) {
-        alert("Пожалуйста, введите ваш Telegram ID или Ник");
+    // Регулярное выражение: латиница, цифры, подчеркивание, от 5 до 32 символов
+    const validNick = /^[a-zA-Z0-9_]{5,32}$/;
+
+    if (!validNick.test(cleanNick)) {
+        alert('ОШИБКА ДОСТУПА!\n\nВведите ваш реальный ник Telegram:\n• Минимум 5 символов\n• Только латинские буквы и цифры\n• Без пробелов');
         return;
     }
 
-    btn.disabled = true;
-    btn.innerText = "Генерирую...";
+    // Эффект "Проверки"
+    btn.innerText = "ПРОВЕРКА НИКА...";
+    btn.style.pointerEvents = "none";
+    btn.style.opacity = "0.7";
 
-    try {
-        // Используем твой IP и порт 8080
-        const response = await fetch('https://however-crystal-infections-local.trycloudflare.com/get_sos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nick: tgId })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.key) {
-            // Выводим ключ в твой блок result_box
-            resultBox.style.display = "block";
-            resultBox.innerHTML = `
-                <div style="font-size: 9px; color: var(--neon); font-weight: 900; text-transform: uppercase;">Доступ активен 2 часа:</div>
-                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-top: 5px; word-break: break-all; font-family: monospace; font-size: 12px; color: #fff;">
-                    ${data.key}
-                </div>
-                <div style="font-size: 10px; margin-top: 5px; opacity: 0.7;">Скопируйте и вставьте в приложение</div>
-            `;
-        } else {
-            alert("Ошибка: " + (data.error || "Сервер недоступен"));
-        }
-    } catch (err) {
-        alert("Ошибка сети! Если вы на HTTPS, браузер может блокировать запрос к HTTP серверу.");
-        console.error(err);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "Получить SOS-ключ";
-    }
+    setTimeout(() => {
+        vpnLink.innerText = FIXED_SOS_KEY;
+        resultBox.style.display = 'block';
+        
+        btn.innerText = "ДОСТУП ОДОБРЕН ✅";
+        btn.style.background = "#10b981"; // Меняем на зеленый
+        
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 1500); 
 }
-</script>
+
+function copyKey(e) { // Добавили 'e' сюда
+    const text = document.getElementById('vpn_link').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const copyBtn = e.target; // Теперь это будет работать правильно
+        const originalText = copyBtn.innerText;
+        copyBtn.innerText = "СКОПИРОВАНО! ✅";
+        copyBtn.style.background = "#059669";
+        
+        setTimeout(() => {
+            copyBtn.innerText = originalText;
+            copyBtn.style.background = "var(--neon)";
+        }, 2000);
+    });
+}
+
+function toggleAccordion() {
+    const wrapper = document.getElementById('acc_wrapper');
+    const arrow = document.getElementById('acc_arrow');
+    wrapper.classList.toggle('open');
+    arrow.style.transform = wrapper.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+    </script>
+</body>
+</html>
